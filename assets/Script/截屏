@@ -1,0 +1,42 @@
+let width = 3326;
+        let height = 1536;
+
+        let texture = new cc.RenderTexture();
+        texture.initWithSize(width, height);
+
+        const originTarget = this.camera.targetTexture;
+
+        this.camera.targetTexture = texture;
+        this.camera.render(this.node);
+        this.camera.targetTexture = originTarget;
+
+        // let texture = this.node.getComponent(cc.Sprite).spriteFrame.getTexture();
+
+        let data = null;
+        let result = texture.readPixels(data, 0,0,width, height);
+        console.log(result)
+
+        let picData = new Uint8Array(width * height * 4);
+        let rowBytes = width * 4;
+        for (let row = 0; row < height; row++) {
+            let srow = height - 1 - row;
+            let start = srow * width * 4;
+            let reStart = row * width * 4;
+            for (let i = 0; i < rowBytes; i++) {
+                if(row<200 && i%4<3){
+                    picData[reStart + i] = 255;
+                }else{
+                    picData[reStart + i] = result[start + i];
+                }
+
+            }
+        }
+
+        let texture2 = new cc.Texture2D();
+        texture2.initWithData(picData, 16, width, height);
+
+        let spriteFrame = new cc.SpriteFrame();
+        spriteFrame.setTexture(texture2);
+
+        let sprite = this.node.getComponent(cc.Sprite)
+        sprite.spriteFrame = spriteFrame;
